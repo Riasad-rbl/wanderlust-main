@@ -125,13 +125,22 @@
     font-size: 36px;
     font-weight: bold;
     text-align: center;
-    color: #222;
+    color: #e0c1c1;
     margin: 20px 0;
     text-transform: uppercase;
     letter-spacing: 2px;
     position: relative;
 }
-
+.page-title1 {
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: #111613;
+    margin: 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+}
 .page-title::after {
     content: "";
     display: block;
@@ -140,9 +149,10 @@
     background: #007bff;
     margin: 10px auto;
     border-radius: 2px;
+    
 }
 .hero {
-    background: url('/images/hero-bg.jpg') center/cover no-repeat;
+    background: url('./images/hero-bg.jpg') center/cover no-repeat;
     height: 60vh;
     display: flex;
     align-items: center;
@@ -233,4 +243,74 @@ button {
 
 button:hover {
     background-color: #c82333;
+}
+
+.btns
+{
+    display: flex !important;
+}
+
+/* Container */
+.form-container {
+  background: #ffffff;
+  margin-top: 50px;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.form-container h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Form Styling */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+input:focus, textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Button */
+.btn-submit {
+  background: #007bff;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-submit:hover {
+  background: #0056b3;
 }

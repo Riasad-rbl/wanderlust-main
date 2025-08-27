@@ -6,6 +6,7 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate =require("ejs-mate");
 
+
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
 main()
@@ -26,6 +27,48 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine('ejs',ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
+
+
+// ============ LOGIN ROUTES ============
+
+// Show login form
+app.get("/login", (req, res) => {
+  res.render("listings/login.ejs"); // <-- your login.ejs file
+});
+
+// Handle login
+app.post("/login", (req, res) => {
+  const { role, userId, password } = req.body;
+
+  // Simple authentication check
+  const foundUser = users.find(
+    (u) => u.role === role && u.userId === userId && u.password === password
+  );
+
+  if (!foundUser) {
+    return res.status(401).send("Invalid credentials. Please try again.");
+  }
+
+  // Redirect based on role
+  if (role === "admin") {
+    return res.redirect("/admin/dashboard");
+  } else {
+    return res.redirect("/user/dashboard");
+  }
+});
+
+// Admin dashboard
+app.get("/admin/dashboard", (req, res) => {
+  res.render("listings/adminDashboard.ejs");
+});
+
+// User dashboard
+app.get("/user/dashboard", (req, res) => {
+  res.render("listings/userDashboard.ejs");
+});
+
+// ============ LISTING ROUTES ============
+
 
 app.get("/", async(req, res) => {
   const featuredListings = await Listing.find({}); // Fetch 6 featured listings
@@ -103,3 +146,4 @@ app.delete("/listings/:id", async (req, res) => {
 app.listen(8080, () => {
   console.log("server is listening to port 8080");
 });
+

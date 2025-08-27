@@ -1,6 +1,12 @@
 <% layout("/layouts/boilerplate") %> 
   <body>
-    <h3>Listing Details :</h3>
+    <h3 class="page-title1">Listing Details </h3>
+    <div class="card_show">
+      <img class="card-img-top" src="<%= listing.image %>" alt="image cap">
+      <div class="card-body">
+      <!-- <p class="card-text"><%= listing.title %></p> -->
+      </div>
+    </div>
     <ul>
       <li><%= listing.title %></li>
       <li><%= listing.description %></li>
@@ -9,9 +15,11 @@
       <li><%= listing.country %></li>
     </ul>
     <br />
-    <a href="/listings/<%= listing._id %>/edit" >Edit this Listing</a>
-    <br /><br />
-    <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
-      <button>Delete this listing</button>
+    <a href="/listings/<%= listing._id %>/edit" class="btn btn-primary col-1 offset-1">Edit</a>
+    <div class="btn">
+     <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
+     <button class="btn btn-danger offset-3">Delete</button>
     </form>
+  </div>
+
   </body>
