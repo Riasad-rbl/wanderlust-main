@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top ">
+<!-- <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top ">
     <div class="container-fluid">
       <a class="navbar-brand" href="/"><i class="fa-solid fa-hotel"></i></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,9 +10,59 @@
           <a class="nav-link" href="/listings">All Listings</a>
           <a class="nav-link" href="/listings/new">Add New</a>   
         </div>
+         
+
         <div class="d-flex">
           <a class="btn btn-outline-primary" href="/login">Login</a>
+        </div>
+      </div class="d-flex">
+        <a class="btn btn-outline-success" href="/register">Register</a>
+      </div>
+      </div>
+    </div>
+    </div>
+  </nav> -->
+
+
+  <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/"><i class="fa-solid fa-hotel"></i></a>
+  
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-link" href="/home">Home</a>
+          <a class="nav-link" href="/listings">All Listings</a>
+          <% if (currentUser && currentUser.role === "admin") { %>
+            <a class="nav-link" href="/listings/new">Add New</a>
+          <% } %>
+        </div>
+        
+        <!-- Right side buttons -->
+        <div class="d-flex align-items-center">
+          <% if (currentUser && currentUser.role === 'admin') { %>
+            <a href="/admin" class="btn btn-outline-warning ms-2">Admin Dashboard</a>
+          <% } %>
+          <% if (currentUser) { %>
+            <span class="me-2 text-success fw-bold">Hi, <%= currentUser.username %>!</span>
+            <a href="/logout" class="btn btn-outline-danger">Logout</a>
+          <% } else { %>
+            <a href="/login" class="btn btn-outline-primary me-2">Login</a>
+            <a href="/register" class="btn btn-success">Register</a>
+          <% } %>
         </div>
       </div>
     </div>
   </nav>
+  

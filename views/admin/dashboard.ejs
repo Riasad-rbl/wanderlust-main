@@ -1,0 +1,105 @@
+<%layout("/layouts/boilerplate") %> 
+<div class="container my-4">
+    <h2 class="text-center mb-4 fw-bold">Admin Dashboard</h2>
+  
+    <div class="row">
+      <!-- USERS SECTION -->
+      <div class="col-md-6 mb-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <span>Users</span>
+            <input id="userSearch" type="text" class="form-control form-control-sm w-50" placeholder="Search users..............">
+          </div>
+          <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead class="table-light">
+                <tr><th>Username</th><th>Email</th><th>Role</th><th>Action</th></tr>
+              </thead>
+              <tbody id="userTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+  
+      <!-- LISTINGS SECTION -->
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <span>Listings</span>
+            <input id="listingSearch" type="text" class="form-control form-control-sm w-50" placeholder="Search listings...">
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered table-hover">
+              <thead class="table-light">
+                <tr><th>Title</th><th>Owner</th><th>Action</th></tr>
+              </thead>
+              <tbody id="listingTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Fetch and display users
+    async function fetchUsers(query = "") {
+      const res = await fetch(`/admin/api/users?search=${query}`);
+      const users = await res.json();
+      const tbody = document.getElementById("userTable");
+      tbody.innerHTML = users.length
+        ? users.map(u => `
+          <tr>
+            <td>${u.username}</td>
+            <td>${u.email}</td>
+            <td>${u.role}</td>
+            <td>
+              ${u.role !== 'admin'
+                ? `<button class="btn btn-sm btn-danger" onclick="deleteUser('${u._id}')">Delete</button>`
+                : ''}
+            </td>
+          </tr>`).join("")
+        : `<tr><td colspan="4" class="text-center">No users found</td></tr>`;
+    }
+  
+    // Fetch and display listings
+    async function fetchListings(query = "") {
+      const res = await fetch(`/admin/api/listings?search=${query}`);
+      const listings = await res.json();
+      const tbody = document.getElementById("listingTable");
+      tbody.innerHTML = listings.length
+        ? listings.map(l => `
+          <tr>
+            <td>${l.title}</td>
+            <td>${l.owner ? l.owner.username : 'N/A'}</td>
+            <td>
+              <a href="/listings/${l._id}/edit" class="btn btn-sm btn-warning">Edit</a>
+              <button class="btn btn-sm btn-danger" onclick="deleteListing('${l._id}')">Delete</button>
+            </td>
+          </tr>`).join("")
+        : `<tr><td colspan="3" class="text-center">No listings found</td></tr>`;
+    }
+  
+    // Delete User
+    async function deleteUser(id) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+      await fetch(`/admin/users/${id}`, { method: "DELETE" });
+      fetchUsers();
+    }
+  
+    // Delete Listing
+    async function deleteListing(id) {
+      if (!confirm("Are you sure you want to delete this listing?")) return;
+      await fetch(`/admin/listings/${id}`, { method: "DELETE" });
+      fetchListings();
+    }
+  
+    // Search Handlers
+    document.getElementById("userSearch").addEventListener("input", e => fetchUsers(e.target.value));
+    document.getElementById("listingSearch").addEventListener("input", e => fetchListings(e.target.value));
+  
+    // Initial Load
+    fetchUsers();
+    fetchListings();
+  </script>
+  

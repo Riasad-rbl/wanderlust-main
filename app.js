@@ -4,146 +4,131 @@ const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
-const ejsMate =require("ejs-mate");
-
-
+const ejsMate = require("ejs-mate");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+// const Listing = require("./models/listing");
+const User = require("./models/user");
+const reviewRoutes = require("./routes/reviews");
+// Middleware + Routes
+const { isLoggedIn, isAdmin } = require("./middleware/middleware");
+const userRoutes = require("./routes/user");
+const adminRoutes = require("./routes/admin");
+const listingRoutes = require("./routes/listing");
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
-main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// ================== DATABASE CONNECTION ==================
+mongoose.connect(MONGO_URL)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error(" MongoDB Error:", err));
 
-async function main() {
-  await mongoose.connect(MONGO_URL);
-}
-
+// ================== APP CONFIG ==================
+app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-app.engine('ejs',ejsMate);
-app.use(express.static(path.join(__dirname,"/public")));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static("uploads"));
 
+// ================== SESSION + FLASH ==================
+const sessionConfig = {
+  secret: "mysupersecretkey",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
+};
+app.use(session(sessionConfig));
+app.use(flash());
 
-// ============ LOGIN ROUTES ============
+// ================== PASSPORT CONFIG ==================
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
 
-// Show login form
-app.get("/login", (req, res) => {
-  res.render("listings/login.ejs"); // <-- your login.ejs file
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// ================== GLOBAL VARIABLES ==================
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user;
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
 });
 
-// Handle login
-app.post("/login", (req, res) => {
-  const { role, userId, password } = req.body;
+// ================== ROUTES ==================
+app.use("/", userRoutes);
+app.use("/admin", adminRoutes);
+app.use("/listings", listingRoutes);
+app.use("/listings/:id/reviews", reviewRoutes);
 
-  // Simple authentication check
-  const foundUser = users.find(
-    (u) => u.role === role && u.userId === userId && u.password === password
-  );
 
-  if (!foundUser) {
-    return res.status(401).send("Invalid credentials. Please try again.");
-  }
-
-  // Redirect based on role
-  if (role === "admin") {
-    return res.redirect("/admin/dashboard");
-  } else {
-    return res.redirect("/user/dashboard");
-  }
+// ================== LISTING ROUTES ==================
+app.get("/", async (req, res) => {
+  const featuredListings = await Listing.find({});
+  res.render("listings/home.ejs", { featuredListings });
+});
+// Home Page
+app.get("/home", async (req, res) => {
+  const featuredListings = await Listing.find({});
+  res.render("listings/home.ejs", { featuredListings });
 });
 
-// Admin dashboard
-app.get("/admin/dashboard", (req, res) => {
-  res.render("listings/adminDashboard.ejs");
-});
-
-// User dashboard
-app.get("/user/dashboard", (req, res) => {
-  res.render("listings/userDashboard.ejs");
-});
-
-// ============ LISTING ROUTES ============
-
-
-app.get("/", async(req, res) => {
-  const featuredListings = await Listing.find({}); // Fetch 6 featured listings
-  res.render('listings/home.ejs', { featuredListings }); // Render home.ejs with data
-});
-
-
-// Home Page Route
-app.get('/home', async (req, res) => {
-      const featuredListings = await Listing.find({}); // Fetch 6 featured listings
-      res.render('listings/home.ejs', { featuredListings }); // Render home.ejs with data
-});
-
-//Index Route
+// View All Listings
 app.get("/listings", async (req, res) => {
   const allListings = await Listing.find({});
   res.render("listings/index.ejs", { allListings });
 });
 
-//New Route
-app.get("/listings/new", (req, res) => {
+// Add New Listing (Admin Only)
+app.get("/listings/new", isAdmin, (req, res) => {
   res.render("listings/new.ejs");
 });
 
-//Show Route
-app.get("/listings/:id", async (req, res) => {
-  let { id } = req.params;
-  const listing = await Listing.findById(id);
-  res.render("listings/show.ejs", { listing });
-});
-
-//Create Route
-app.post("/listings", async (req, res) => {
+// Create Listing (Admin Only)
+app.post("/listings", isAdmin, async (req, res) => {
   const newListing = new Listing(req.body.listing);
   await newListing.save();
+  req.flash("success", "New listing added!");
   res.redirect("/listings");
 });
 
-//Edit Route
-app.get("/listings/:id/edit", async (req, res) => {
-  let { id } = req.params;
-  const listing = await Listing.findById(id);
+// Edit Listing (Admin Only)
+app.get("/listings/:id/edit", isAdmin, async (req, res) => {
+  const listing = await Listing.findById(req.params.id);
   res.render("listings/edit.ejs", { listing });
 });
 
-//Update Route
-app.put("/listings/:id", async (req, res) => {
-  let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-  res.redirect(`/listings/${id}`);
+// Update Listing (Admin Only)
+app.put("/listings/:id", isAdmin, async (req, res) => {
+  await Listing.findByIdAndUpdate(req.params.id, req.body.listing);
+  req.flash("success", "Listing updated successfully!");
+  res.redirect(`/listings/${req.params.id}`);
 });
 
-//Delete Route
-app.delete("/listings/:id", async (req, res) => {
-  let { id } = req.params;
-  let deletedListing = await Listing.findByIdAndDelete(id);
-  console.log(deletedListing);
+// Delete Listing (Admin Only)
+app.delete("/listings/:id", isAdmin, async (req, res) => {
+  await Listing.findByIdAndDelete(req.params.id);
+  req.flash("success", "Listing deleted successfully!");
   res.redirect("/listings");
 });
 
-// app.get("/testListing", async (req, res) => {
-//   let sampleListing = new Listing({
-//     title: "My New Villa",
-//     description: "By the beach",
-//     price: 1200,
-//     location: "Calangute, Goa",
-//     country: "India",
-//   });
+// Show Listing Details
+app.get("/listings/:id", async (req, res) => {
+  const listing = await Listing.findById(req.params.id);
+  res.render("listings/show.ejs", { listing });
+});
 
-//   await sampleListing.save();
-//   console.log("sample was saved");
-//   res.send("successful testing");
-// });
-
+// ================== SERVER START ==================
 app.listen(8080, () => {
-  console.log("server is listening to port 8080");
+  console.log("Server running on port 8080");
 });
 

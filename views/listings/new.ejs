@@ -28,7 +28,8 @@
               <h3 class="mb-0">Create a New Listing</h3>
             </div>
             <div class="card-body">
-              <form method="POST" action="/listings" id="listingForm" novalidate>
+              <form method="POST" action="/listings" enctype="multipart/form-data" id="listingForm" novalidate>
+
                 <div class="mb-3">
                   <label for="title" class="form-label fw-bold">Title</label>
                   <input 
@@ -36,7 +37,7 @@
                     id="title" 
                     class="form-control" 
                     placeholder="Enter title" 
-                    type="text" 
+                    type="string"  
                     required 
                     minlength="3" 
                     maxlength="100"
@@ -64,7 +65,7 @@
                   </div>
                 </div>
 
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                   <label for="image" class="form-label fw-bold">Image URL</label>
                   <input 
                     name="listing[image]" 
@@ -77,6 +78,20 @@
                   />
                   <div class="invalid-feedback">
                     Please enter a valid URL starting with http:// or https://
+                  </div>
+                </div> -->
+                <div class="mb-3">
+                  <label for="image" class="form-label fw-bold">Upload Image</label>
+                  <input
+                  type="file" 
+                  name="listing[image]" 
+                  id="image" 
+                  class="form-control" 
+                  accept="image/*" 
+                  required
+                  />
+                  <div class="invalid-feedback">
+                    Please upload an image file.
                   </div>
                 </div>
 

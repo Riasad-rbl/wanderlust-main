@@ -14,6 +14,17 @@
             <div class="card-body">
                 <h5 class="card-title"><%= listing.title %></h5>
                 <p class="card-text">&#2547; <%= listing.price.toLocaleString("en-BD") %> / night</p>
+                <!-- ⭐ Show average rating -->
+                <% let avg = Number(listing.averageRating || 0); %>
+
+                <p>
+                  <span class="text-warning">
+                    <% for (let i = 0; i < Math.floor(avg); i++) { %>★<% } %>
+                    <% for (let i = Math.floor(avg); i < 5; i++) { %>☆<% } %>
+                  </span>
+                  (<%= avg.toFixed(1) %>/5)
+                </p>
+                
                 <a href="/listings/<%= listing.id %>" class="btn btn-outline-primary">View Details</a>
             </div>
         </div>
@@ -39,3 +50,6 @@
     </ul>
   </body>
   -->
+ 
+  
+  </body>

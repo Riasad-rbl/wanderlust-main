@@ -7,7 +7,7 @@
   </head>
   <body>
     <h3>Edit your Listing</h3>
-    <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" class="needs-validation" novalidate>
+    <form method="POST" action="/listings/<%= listing._id %>?_method=PUT"  enctype="multipart/form-data"  class="needs-validation" novalidate>
               
       <div class="mb-3">
         <label for="title" class="form-label">Title</label>
@@ -19,10 +19,20 @@
         <textarea id="description" name="listing[description]" rows="4" class="form-control" required><%= listing.description %></textarea>
       </div>
 
-      <div class="mb-3">
-        <label for="image" class="form-label">Image URL</label>
-        <input id="image" name="listing[image]" value="<%= listing.image %>" type="text" class="form-control">
-      </div>
+     <!-- Current Image Preview -->
+     <div class="mb-3">
+      <label class="form-label fw-bold">Current Image</label><br>
+      <img src="<%= listing.image %>" alt="Current Image" class="img-thumbnail" style="width:180px; height:auto;">
+    </div>
+
+    <!-- New Image Upload -->
+    <div class="mb-3">
+      <label for="newImage" class="form-label fw-bold">Upload New Image (optional)</label>
+      <input id="newImage" name="newImage" type="file" class="form-control">
+    </div>
+
+    <!-- Hidden field to keep old image -->
+    <input type="hidden" name="existingImage" value="<%= listing.image %>">
 
       <div class="mb-3">
         <label for="price" class="form-label">Price ($)</label>

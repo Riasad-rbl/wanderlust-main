@@ -1,10 +1,10 @@
-<% layout("/layouts/boilerplate") %> 
+<!-- <% layout("/layouts/boilerplate") %> 
   <body>
     <h3 class="page-title1">Listing Details </h3>
     <div class="card_show">
       <img class="card-img-top" src="<%= listing.image %>" alt="image cap">
       <div class="card-body">
-      <!-- <p class="card-text"><%= listing.title %></p> -->
+   
       </div>
     </div>
     <ul>
@@ -22,4 +22,107 @@
     </form>
   </div>
 
-  </body>
+  </body> -->
+
+
+  <% layout("/layouts/boilerplate") %> 
+<body>
+  <h3 class="page-title1"><%= listing.title %></h3>
+
+  <div class="card_show">
+    <img class="card-img-top img-fluid " src="<%= listing.image %>" alt="image cap">
+    <div class="card-body"></div>
+  </div>
+
+  <ul>
+    <li><%= listing.title %></li>
+    <li><%= listing.description %></li>
+    <li>&#8377; <%= listing.price.toLocaleString("en-BD") %></li>
+    <li><%= listing.location %></li>
+    <li><%= listing.country %></li>
+  </ul>
+
+  <br />
+    
+  <% if (currentUser && currentUser.role === "admin") { %>
+    <!-- Only admins can edit or delete -->
+    <a href="/listings/<%= listing._id %>/edit" class="btn btn-primary col-1 offset-1">Edit</a>
+    <div class="btn">
+      <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+        <button class="btn btn-danger offset-3">Delete</button>
+      </form>
+    </div>
+  <% } else { %>
+    <!-- Normal users see disabled buttons -->
+    <!-- <button class="btn btn-secondary col-1 offset-1" disabled>Edit</button>
+    <button class="btn btn-secondary offset-3" disabled>Delete</button> -->
+  <% } %>
+  <hr>
+<h4>Reviews</h4>
+
+<div class="container my-4">
+  <h2><%= listing.title %></h2>
+  <p><%= listing.description %></p>
+  <p><strong>Price:</strong> $<%= listing.price %></p>
+  <p><strong>Location:</strong> <%= listing.location %>, <%= listing.country %></p>
+</div>
+
+<hr>
+
+<!-- Review Section -->
+<div class="container mt-4">
+  <h4 class="mb-3">Reviews</h4>
+  <h3><%= listing.title %></h3>
+  <p>
+    <span class="text-warning">
+      <% for(let i = 0; i < Math.floor(listing.averageRating); i++) { %>
+        ★
+      <% } %>
+      <% for(let i = Math.floor(listing.averageRating); i < 5; i++) { %>
+        ☆
+      <% } %>
+    </span>
+    (<%= listing.averageRating %>/5)
+  </p>
+  
+  <!-- Show previous reviews -->
+  <% if (listing.reviews.length > 0) { %>
+    <% listing.reviews.forEach(review => { %>
+      <div class="card mb-3">
+        <div class="card-body">
+          <strong>⭐ Rating:</strong> <%= review.rating %>/5 <br>
+          <p class="mb-1"><%= review.comment %></p>
+          <% if (review.author) { %>
+            <small class="text-muted">By: <%= review.author.username %></small>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="text-muted">No reviews yet. Be the first to review!</p>
+  <% } %>
+
+  <hr>
+
+  <!-- Review Form -->
+  <h5>Add a Review</h5>
+  <form action="/listings/<%= listing._id %>/reviews" method="POST">
+    <div class="mb-3">
+      <label for="rating">Rating</label>
+      <select name="review[rating]" id="rating" class="form-control">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Terrible</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="comment">Comment</label>
+      <textarea name="review[comment]" id="comment" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Review</button>
+  </form>
+</div>
+
+</body>
